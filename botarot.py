@@ -14,7 +14,7 @@ class Botarot(ircbot.SingleServerIRCBot):
                                            "Bot pour jouer au tarot (indev) réalisé en Python avec ircbot")
     #endDef
 
-    def ircbot.SingleServerIRCBot.get_version(self):
+    def get_version(self):
         return "Botarot, the bot for tarot ! - by ElTata"
     #endDef
 
@@ -23,6 +23,7 @@ class Botarot(ircbot.SingleServerIRCBot):
         Méthode appelée une fois connecté et identifié.
         """
         serv.join("#test-ircbot")
+        serv.action("#test-ircbot", "salue tout le monde.")
     #endDef
 
 #endClass
