@@ -4,7 +4,7 @@
 import irclib
 import ircbot
 
-import card
+#import card
 import game
 
 class Botarot(ircbot.SingleServerIRCBot):
@@ -12,6 +12,7 @@ class Botarot(ircbot.SingleServerIRCBot):
         ircbot.SingleServerIRCBot.__init__(self, [("irc.iiens.net", 6667)],
                                            "Botarot",
                                            "Bot pour jouer au tarot (indev) réalisé en Python avec ircbot")
+        self.channel = "#test-ircbot"
     #endDef
 
     def get_version(self):
@@ -22,13 +23,34 @@ class Botarot(ircbot.SingleServerIRCBot):
         """
         Méthode appelée une fois connecté et identifié.
         """
-        serv.join("#test-ircbot")
-        serv.action("#test-ircbot", "salue tout le monde.")
+        self.serv = serv
+        serv.join(self.channel)
+        serv.privmsg(self.channel, "Hi everybody ! Guess what ? I have a tarot deck...")
+    #endDef
+
+
+
+    def on_pubmsg(self, serv, ev):
+        msg = ev.arguments()[0]
+        if msg.startswith("Botarot:"):
+            if msg.endswith(":") or msg.endswith(" "):
+                serv.privmsg(self.channel, "J'écoute.")
+            #endIf
+            if msg[9:] == "tarot":
+                self.runGame(irclib.nm_to_n(ev.source()), serv)
+            #endIf
+        #endIf
+    #endDef
+
+    def runGame(self, starter, serv):
+        g = game.Game(self.channel, serv, self)
+        g.start(starter)
+    #endDef
+
+    def sendMsg(self, dest, msg):
+        self.serv.privmsg(dest, msg)
     #endDef
 
 #endClass
 
-
-if __name__ == "__main__":
-    Botarot().start()
-#endIf
+Botarot().start()

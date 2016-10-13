@@ -14,4 +14,13 @@ class Player():
         self.cards.append(card)
     #endDef
 
+    def playCard(self, card):
+        if (not card in self.cards):
+            return Card(None, None, None, None)
+        else:
+            #vérifier légitimité
+            return self.cards.pop()#indice de la carte#)
+        #endIf
+     #endDef
+
 #endClass

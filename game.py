@@ -1,72 +1,24 @@
 #!/usr/bin/env python2
 # -*- coding: utf8 -*-
 
-import card
+
+from card import *
+from tarot_deck import *
+from player import *
 import random
-import player
+
 
 class Game():
-    def __init__(self, chan):
+    def __init__(self, chan, serv, botRef):
         self.channel = chan
-        self.deck = []
+        self.serv = serv
+        self.botRef = botRef
         self.players = []
+        self.pli = [] #en anglais?
         self.nest = []
+        self.deck = TarotDeck(botRef)
+        self.deck.generateCards()
     #endDef
-
-    def generateCards(self):
-        colors = ["Heart", "Club", "Diamond", "Spade"]
-        pips = [["1", 0.5], ["2", 0.5], ["3", 0.5], ["4", 0.5], ["5", 0.5], ["6", 0.5], ["7", 0.5], ["8", 0.5], ["9", 0.5], ["10", 0.5], ["Jack", 2], ["Knight", 3], ["Queen", 4], ["King", 5]]
-        for color in colors:
-            for pip in pips:
-                self.deck.append(Card(trump = None, value = pips[pip[0]], color = colors[color], point = pips[pip[1]]))
-            #endFor
-        #endFor
-
-        trumps = [  "0 - The Fool",
-                    "I - The Magician",
-                    "II - The High Priestess",
-                    "III - The Empress",
-                    "IV - The Emperor",
-                    "V - The Hierophant",
-                    "VI - The Lovers",
-                    "VII - The Chariot",
-                    "VIII - Justice",
-                    "IX - The Hermit",
-                    "X - Wheel of Fortune",
-                    "XI - Strength",
-                    "XII - Hanged Man",
-                    "XIII - Death",
-                    "XIV - Temperance",
-                    "XV - The Devil",
-                    "XVI - The Tower",
-                    "XVII - The Star",
-                    "XVIII - The Moon",
-                    "XIX - The Sun",
-                    "XX - Judgement",
-                    "XXI - The World"]
-        for trump in trumps:
-            self.deck.append(Card(trump = trump, value = None, color = None, point = 4.5 if (trump=="0 - The Fool" or trump=="I - The Magician" or trump=="XXI - The World") else 0.5))
-        #endFor
-    #endDef
-
-    def shuffle(self):
-        random.shuffle(self.deck)
-        serv.action(self.channel, "shuffle the deck...")
-    #endDef
-
-
-    def generateNest(self):
-        if (len(self.players) == 3 or len(self.players) == 4):
-            randNest = [0, 0, 0, 0, 0, 0]
-        elif (len(self.players) == 5):
-            randNest = [0, 0, 0]
-        #endIf
-        while (not self.isRandNestOk(randNest)):
-            randNest = [random.randint(3, 74) for i in range(len(randNest))]
-            randNest.sort()
-        #endWhile
-        return randNest
-
 
     def isRandNestOk(self, randNest):
         for currIdx, val in enumerate(randNest):
@@ -76,7 +28,7 @@ class Game():
                 #endIf
             #endFor
 
-        for idx, val in enumerate(randNest):    #ici on vérifie qu'on a bien toujours des multiples de 3 cartes entre deux cartes choisies pour le chien
+        for idx, val in enumerate(randNest):    #ici on vérifie qu'on a bien toujours des multiples de 3 cartes entre deux cartes choisies pour le chien (randNest est tj trié)
             if idx == 0:
                 if (val-1)%3:
                     return false
@@ -86,7 +38,25 @@ class Game():
                     return false
                 #endIf
             #endIf
+        #endFor
         return true
+    #endDef
+
+
+    def generateNest(self):
+        if (len(self.players) == 3 or len(self.players) == 4):
+            randNest = [0, 0, 0, 0, 0, 0]
+        elif (len(self.players) == 5):
+            randNest = [0, 0, 0]
+        else:
+            return "Error : " + str(len(self.players)) + " players"
+        #endIf
+        while (not self.isRandNestOk(randNest)):
+            randNest = [random.randint(3, 74) for i in range(len(randNest))]
+            randNest.sort()
+        #endWhile
+        return randNest
+    #endDef
 
 
     def dealingNoShuffle(self, randNest):
@@ -107,5 +77,25 @@ class Game():
         #endWhile
     #endDef
 
+
+    def auction(self):
+        from botinstance import bot
+        self.botRef.sendMsg(self.chan, "Auction time !")
+    #endDef
+
+
+#    def contracts(self):
+#    def annonces(self):
+
+    def start(self, who):
+        for card in self.deck.cards:
+            if card.trump == None:
+                print(str(card.value) + " of " + str(card.color) + ", for " + str(card.points) + " points.")
+            else:
+                print("Trump : " + str(card.trump))
+        self.botRef.sendMsg(self.channel, "Tarot game launched by " + who + ". Waiting for 2-4 more players.")
+        self.players.append(who)
+
+    #endDef
 
 #endClass

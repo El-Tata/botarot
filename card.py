@@ -2,11 +2,11 @@
 # -*- coding: utf8 -*-
 
 class Card():
-    def __init__(self, trump, value, color, point):
+    def __init__(self, trump, value, color, points):
         self.trump = trump
         self.value = value
         self.color = color
-        self.point = point
+        self.points = points
     #endDef
 
     def isTrump(self):
@@ -14,6 +14,6 @@ class Card():
     #endDef
 
     def isOudler(self):
-        return (self.isTrump() and (self.trump == '1' or self.trump == 'excuse' or self.trump == '21'))
+        return (self.isTrump() and (self.trump == "I - The Magician" or self.trump == "0 - The Fool" or self.trump == "XXI - The World"))
     #endDef
 #endClass
