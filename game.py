@@ -9,12 +9,12 @@ import random
 
 
 class Game():
-    def __init__(self, chan, serv, botRef):
+    def __init__(self, chan, serv, botRef, who):
         self.channel = chan
         self.serv = serv
         self.botRef = botRef
-        self.players = []
-        self.pli = [] #en anglais?
+        self.players = [who]
+        self.trick = [] #en anglais?
         self.nest = []
         self.deck = TarotDeck(botRef)
         self.deck.generateCards()
@@ -87,15 +87,21 @@ class Game():
 #    def contracts(self):
 #    def annonces(self):
 
-    def start(self, who):
-        for card in self.deck.cards:
-            if card.trump == None:
-                print(str(card.value) + " of " + str(card.color) + ", for " + str(card.points) + " points.")
-            else:
-                print("Trump : " + str(card.trump))
-        self.botRef.sendMsg(self.channel, "Tarot game launched by " + who + ". Waiting for 2-4 more players.")
-        self.players.append(who)
+    def gameManager():
+        strPl = ""
+        for pl in self.players:
+            strPl = pl + " "
+        self.botRef.sendMsg(self.channel, "Tarot starts with " + str(len(self.players)) + " players : " + strPl)
 
+    def addPlayer(self, nick):
+        if nick not in self.players:
+            self.players.append(nick)
+            self.sendMsg(self.channel, self.g.players[-1] + " joins this game of tarot !")
+        #endIf
+
+        if len(self.players) == 3:
+            self.botRef.sendMsg(self.channel, "Already 3 players. Game will start in 20 seconds...")
+            self.botRef.execDelay(20, self.gameManager())
     #endDef
 
 #endClass

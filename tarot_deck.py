@@ -11,6 +11,12 @@ class TarotDeck():
         self.botRef = botRef
         self.cards = []
 
+
+    def shuffle(self):
+        random.shuffle(self.cards)
+        #endDef
+
+
     def generateCards(self):
         colors = ["Heart", "Club", "Diamond", "Spade"]
         pips = [["1", 0.5], ["2", 0.5], ["3", 0.5], ["4", 0.5], ["5", 0.5], ["6", 0.5], ["7", 0.5], ["8", 0.5], ["9", 0.5], ["10", 0.5], ["Jack", 1.5], ["Knight", 2.5], ["Queen", 3.5], ["King", 4.5]]
@@ -45,10 +51,5 @@ class TarotDeck():
         for trump in trumps:
             self.cards.append(Card(trump = trump, value = None, color = None, points = 4.5 if (trump=="0 - The Fool" or trump=="I - The Magician" or trump=="XXI - The World") else 0.5))
         #endFor
-    #endDef
-
-
-    def shuffle(self):
-        random.shuffle(self.deck)
-        serv.action(self.channel, "shuffle the deck...")
+        self.shuffle()
     #endDef
