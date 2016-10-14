@@ -14,6 +14,21 @@ class Player():
         self.cards.append(card)
     #endDef
 
+    def showCards(self):
+        handLst = []
+        handStr = "Your cards : "
+        for idx, card in enumerate(self.cards):
+            if not (idx+1)%10:
+                handLst.append(handStr)
+                handStr = ""
+            #endIf
+            handStr += card.strg
+        #endFor
+        handLst.append(handStr)
+        return handLst
+    #endDef
+
+
     def playCard(self, card):
         if (not card in self.cards):
             return Card(None, None, None, None)

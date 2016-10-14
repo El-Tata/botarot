@@ -58,8 +58,20 @@ class Botarot(ircbot.SingleServerIRCBot):
 
     def sendMsg(self, dest, msg):
         self.serv.privmsg(dest, self.strDick(msg))
-        return
     #endDef
+
+    def sendNtc(self, dest, msg):
+        self.serv.notice(dest, msg)
+    #endDef
+
+    def sendAct(self, dest, msg):
+        self.serv.action(dest, msg)
+    #endDef
+
+    def execDelay(self, time, func, args=()):
+        self.serv.execute_delayed(time, func, args)
+    #endDef
+
 
     def on_welcome(self, serv, ev):
         """
@@ -72,14 +84,10 @@ class Botarot(ircbot.SingleServerIRCBot):
     #endDef
 
 
-    def execDelay(self, time, func, args=()):
-        irclib.serverConnection.execute_delayed(self, time, func, args)
-    #endDef
-
-
     def on_pubmsg(self, serv, ev):
         msg = ev.arguments()[0]
-        if "bite" in msg.lower() and irclib.nm_to_n(ev.source()) != "Botarot":
+        auth = irclib.nm_to_n(ev.source())
+        if "bite" in msg.lower() and auth != "Botarot":
             c = msg.lower().count('bite')
             self.dickLuck -= int((c*c)/2)+1
             if self.dickLuck <= 7:
@@ -95,7 +103,11 @@ class Botarot(ircbot.SingleServerIRCBot):
             if "sava" in msg:
                 self.sava(ev.target(), serv)
             elif msg[9:] == "tarot":
-                self.runGame(irclib.nm_to_n(ev.source()), serv, ev.target())
+                if self.gameLaunched:
+                    self.sendMsg(ev.target(), auth+": A game is already running, launched by "+self.g.players[0].name+".")
+                else:
+                    self.runGame(irclib.nm_to_n(ev.source()), serv, ev.target())
+                #endIf
             elif msg[9:] == "bite?":
                 self.sendMsg(ev.target(), "Chacun de mes mots a 1 chance sur " + str(self.dickLuck + 1) + " d'être 'bite'.")
             elif irclib.nm_to_n(ev.source()) == "ElTata":
@@ -125,7 +137,7 @@ class Botarot(ircbot.SingleServerIRCBot):
     def runGame(self, starter, serv, chan):
         self.gameLaunched = True
         self.g = game.Game(chan, serv, self, starter)
-        self.sendMsg(self.g.channel, "Tarot game launched by " + self.g.players[0] + ". Waiting for 2-4 more players. Say 'join' to participate.")
+        self.sendMsg(self.g.channel, "Tarot game launched by " + self.g.players[0].name + ". Waiting for 2-4 more players. Say 'join' to participate.")
     #endDef
 
 

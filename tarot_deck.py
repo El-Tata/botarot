@@ -26,30 +26,33 @@ class TarotDeck():
             #endFor
         #endFor
 
-        trumps = [  "0 - The Fool",
-                    "I - The Magician",
-                    "II - The High Priestess",
-                    "III - The Empress",
-                    "IV - The Emperor",
-                    "V - The Hierophant",
-                    "VI - The Lovers",
-                    "VII - The Chariot",
-                    "VIII - Justice",
-                    "IX - The Hermit",
-                    "X - Wheel of Fortune",
-                    "XI - Strength",
-                    "XII - Hanged Man",
-                    "XIII - Death",
-                    "XIV - Temperance",
-                    "XV - The Devil",
-                    "XVI - The Tower",
-                    "XVII - The Star",
-                    "XVIII - The Moon",
-                    "XIX - The Sun",
-                    "XX - Judgement",
-                    "XXI - The World"]
+        trumps = [  "0.0 - The Fool",
+                    "1.I - The Magician",
+                    "2.II - The High Priestess",
+                    "3.III - The Empress",
+                    "4.IV - The Emperor",
+                    "5.V - The Hierophant",
+                    "6.VI - The Lovers",
+                    "7.VII - The Chariot",
+                    "8.VIII - Justice",
+                    "9.IX - The Hermit",
+                    "10.X - Wheel of Fortune",
+                    "11.XI - Strength",
+                    "12.XII - Hanged Man",
+                    "13.XIII - Death",
+                    "14.XIV - Temperance",
+                    "15.XV - The Devil",
+                    "16.XVI - The Tower",
+                    "17.XVII - The Star",
+                    "18.XVIII - The Moon",
+                    "19.XIX - The Sun",
+                    "20.XX - Judgement",
+                    "21.XXI - The World"]
         for trump in trumps:
-            self.cards.append(Card(trump = trump, value = None, color = None, points = 4.5 if (trump=="0 - The Fool" or trump=="I - The Magician" or trump=="XXI - The World") else 0.5))
+            self.cards.append(Card(trump = trump, value = None, color = None, points = 4.5 if (trump=="0.0 - The Fool" or trump=="1.I - The Magician" or trump=="21.XXI - The World") else 0.5))
         #endFor
         self.shuffle()
     #endDef
+
+    def pop(self, idx=-1):
+        return self.cards.pop(idx)

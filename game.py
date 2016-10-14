@@ -13,7 +13,7 @@ class Game():
         self.channel = chan
         self.serv = serv
         self.botRef = botRef
-        self.players = [who]
+        self.players = [Player(who)]
         self.trick = [] #en anglais?
         self.nest = []
         self.deck = TarotDeck(botRef)
@@ -21,25 +21,24 @@ class Game():
     #endDef
 
     def isRandNestOk(self, randNest):
-        for currIdx, val in enumerate(randNest):
-            for idx in range(currIdx+1, len(randNest)):
-                if (val == randNest[idx] or val+1 == randNest[idx+1]):  #si on trouve des doublons ou qu'on trouve deux valeurs consécutives (randNest est trié)
-                    return false
-                #endIf
-            #endFor
+        for idx, val in enumerate(randNest[:len(randNest)-2]):
+            if (val == randNest[idx+1] or val+1 == randNest[idx+1]):  #si on trouve des doublons ou qu'on trouve deux valeurs consécutives (randNest est trié)
+                return False
+            #endIf
+        #endFor
 
         for idx, val in enumerate(randNest):    #ici on vérifie qu'on a bien toujours des multiples de 3 cartes entre deux cartes choisies pour le chien (randNest est tj trié)
             if idx == 0:
-                if (val-1)%3:
-                    return false
+                if (val)%3:
+                    return False
                 #endIf
             else:
                 if (val-randNest[idx-1]-1)%3:
-                    return false
+                    return False
                 #endIf
             #endIf
         #endFor
-        return true
+        return True
     #endDef
 
 
@@ -60,10 +59,11 @@ class Game():
 
 
     def dealingNoShuffle(self, randNest):
-        serv.action(self.channel, "deals...")
+        self.botRef.sendAct(self.channel, "deals...")
         idxPlayer = 0
         countCard = 0
-        while (self.deck):
+        print(randNest)
+        while countCard < 78:
             if countCard in randNest:
                 self.nest.append(self.deck.pop(0)); #le chien récupère la première carte courante du paquet
                 countCard += 1
@@ -79,7 +79,6 @@ class Game():
 
 
     def auction(self):
-        from botinstance import bot
         self.botRef.sendMsg(self.chan, "Auction time !")
     #endDef
 
@@ -87,21 +86,30 @@ class Game():
 #    def contracts(self):
 #    def annonces(self):
 
-    def gameManager():
+    def gameManager(self):
         strPl = ""
         for pl in self.players:
-            strPl = pl + " "
-        self.botRef.sendMsg(self.channel, "Tarot starts with " + str(len(self.players)) + " players : " + strPl)
+            strPl += pl.name + " "
+        self.botRef.sendMsg(self.channel, "Tarot starts with " + str(len(self.players)) + " players : \x1b[1m" + strPl + "\x1b[0m")
+        self.dealingNoShuffle(self.generateNest())
+        for pl in self.players:
+            for s in pl.showCards():
+                self.botRef.sendNtc(pl.name, s)
+    #endDef
 
     def addPlayer(self, nick):
-        if nick not in self.players:
-            self.players.append(nick)
-            self.botRef.sendMsg(self.channel, self.players[-1] + " joins this game of tarot !")
-        #endIf
+        lstNicks = [pl.name for pl in self.players]
+        if nick not in lstNicks:
+            self.players.append(Player(nick))
+            self.botRef.sendMsg(self.channel, "\x1b[1m" + self.players[-1].name + "\x1b[0m" + " joins this game of tarot !")
 
-        if len(self.players) == 3:
-            self.botRef.sendMsg(self.channel, "Already 3 players. Game will start in 20 seconds...")
-            self.botRef.execDelay(20, self.gameManager())
+            if len(self.players) == 3:
+                self.botRef.sendMsg(self.channel, "Already \x1b[1m3 players\x1b[0m. Game will start in 20 seconds...")
+                self.botRef.execDelay(20, self.gameManager)
+            #endIf
+        else:
+            self.botRef.sendMsg(self.channel, nick+": tu as déjà rejoint la partie !")
+        #endIf
     #endDef
 
 #endClass
