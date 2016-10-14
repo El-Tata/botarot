@@ -96,7 +96,7 @@ class Game():
     def addPlayer(self, nick):
         if nick not in self.players:
             self.players.append(nick)
-            self.sendMsg(self.channel, self.g.players[-1] + " joins this game of tarot !")
+            self.botRef.sendMsg(self.channel, self.players[-1] + " joins this game of tarot !")
         #endIf
 
         if len(self.players) == 3:
