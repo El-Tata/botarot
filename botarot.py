@@ -13,19 +13,22 @@ class Botarot(ircbot.SingleServerIRCBot):
         ircbot.SingleServerIRCBot.__init__(self, [("irc.iiens.net", 6667)],
                                            "Botarot",
                                            "Bot pour jouer au tarot (indev) réalisé en Python avec ircbot")
-        self.channel = ["#test-ircbot"]
-        self.savaTab = ["sava", "sava ", "sava ? ", "sava ! ", "sava ?! ", "sava !? ", "sava!!!! ", "sava???? ", "sava. ", "sava..."]
+        self.chans = ["#test-ircbot"]
+        self.savaTab = ["sava", "sava ", "sava ? ", "sava ! ", "sava ?! ", "sava !? ", "sava!!!! ", "sava???? ", "sava. ", "sava... "]
         for i in range(3):
             self.savaTab.append("sava")
             self.savaTab.append("sava ")
-            #endFor
+        #endFor
         for i in range(2):
+            self.savaTab.append("sava")
             self.savaTab.append("sava ? ")
             self.savaTab.append("sava ! ")
             self.savaTab.append("sava. ")
-            #endFor
-        self.gameLaunched = False
-        self.g = None
+        #endFor
+
+#        self.gameState = None #["launched", "auctions", "call", "main phase"]
+        self.games = []   #[[instance of Game(), state of the game], [inst. of G(), st of g.], [...], ...]
+        self.whoToSpeak = None
         self.dickLuck = 499
     #endDef
 
@@ -78,15 +81,22 @@ class Botarot(ircbot.SingleServerIRCBot):
         Méthode appelée une fois connecté et identifié.
         """
         self.serv = serv
-        for chan in self.channel:
+        for chan in self.chans:
             serv.join(chan)
             self.sendMsg(chan, "Hi everybody ! Guess what ? I have a tarot deck...")
     #endDef
 
+    def gameInChan(self, chan):
+        for g in self.games:
+            if chan == g[0].channel:
+                return g
+        return None
 
     def on_pubmsg(self, serv, ev):
         msg = ev.arguments()[0]
         auth = irclib.nm_to_n(ev.source())
+        g = self.gameInChan(ev.target())
+
         if "bite" in msg.lower() and auth != "Botarot":
             c = msg.lower().count('bite')
             self.dickLuck -= int((c*c)/2)+1
@@ -103,21 +113,43 @@ class Botarot(ircbot.SingleServerIRCBot):
             if "sava" in msg:
                 self.sava(ev.target(), serv)
             elif msg[9:] == "tarot":
-                if self.gameLaunched:
-                    self.sendMsg(ev.target(), auth+": A game is already running, launched by "+self.g.players[0].name+".")
+                if ev.target() in [g[0].channel for g in self.games]:
+                    self.sendMsg(ev.target(), auth+": A game is already running on this chan !")
                 else:
-                    self.runGame(irclib.nm_to_n(ev.source()), serv, ev.target())
+                    self.runGame(auth, serv, ev.target())
                 #endIf
             elif msg[9:] == "bite?":
                 self.sendMsg(ev.target(), "Chacun de mes mots a 1 chance sur " + str(self.dickLuck + 1) + " d'être 'bite'.")
-            elif irclib.nm_to_n(ev.source()) == "ElTata":
-                if "casse" in msg and "toi" in msg:
-                    serv.part(ev.target(), self.strDick("Ok... :'("))
+            elif auth == "ElTata":
+                if msg[9:] == "casse toi":
+                    if ev.target() == self.chans[0]:
+                        self.sendMsg(ev.target(), "Non, je reste #ici.")
+                    else:
+                        if g:
+                            self.games.remove(g)
+                        #endIf
+                        self.chans.remove(ev.target())
+                        serv.part(ev.target(), self.strDick("Ok... :'("))
+                    #endIf
+                elif "go" in msg and "#" in msg:
+                    self.chans.append(msg[msg.find('#'):])
+                    serv.join(self.chans[-1])
                 #endIf
             #endIf
-        elif self.gameLaunched:
-            if msg == "join" and len(self.g.players) < 5:
-                self.g.addPlayer(irclib.nm_to_n(ev.source()))
+        elif g:
+            if msg.lower() == "my cards":
+                for pl in g[0].players:
+                    if pl.name == auth:
+                        g[0].showCards(pl)
+            elif auth == g[0].players[0].name and msg.lower() in ["drop game", "cancel game"]:
+                self.games.remove(g)
+                self.sendMsg(ev.target(), auth + " stopped the game. I'm available for another one ;).")
+            elif g[1] == "launched" and msg.lower() == "join":
+                g[0].addPlayer(auth)
+            elif g[1] == "auctions" and msg.lower().startswith("bid"):
+                g[0].auction(auth, msg.lower()[msg.find(' ')+1:])
+            elif g[1] == "call" and auth == g[0].takers[0].name and msg.lower().startswith("call"):
+                g[0].call(msg[msg.find(' ')+1:])
             #endIf
         #endIf
     #endDef
@@ -135,9 +167,14 @@ class Botarot(ircbot.SingleServerIRCBot):
     #endDef
 
     def runGame(self, starter, serv, chan):
-        self.gameLaunched = True
-        self.g = game.Game(chan, serv, self, starter)
-        self.sendMsg(self.g.channel, "Tarot game launched by " + self.g.players[0].name + ". Waiting for 2-4 more players. Say 'join' to participate.")
+        self.games.append([game.Game(len(self.games), chan, self, starter), "launched"])
+        self.sendMsg(self.games[-1][0].channel, "Tarot game launched by \x1b[1m" + self.games[-1][0].players[0].name + "\x1b[0m. Waiting for 2-4 more players. Say 'join' to participate.")
+
+#        self.g.addPlayer("DECK")
+#        for card in self.g.deck.cards:
+#            self.g.players[1].addCard(card)
+#        self.g.showCards(self.g.players[1])
+
     #endDef
 
 

@@ -7,9 +7,9 @@ from card import *
 import random
 
 class TarotDeck():
-    def __init__(self, botRef):
-        self.botRef = botRef
+    def __init__(self):
         self.cards = []
+        self.strgCards = []
 
 
     def shuffle(self):
@@ -23,10 +23,11 @@ class TarotDeck():
         for color in colors:
             for pip in pips:
                 self.cards.append(Card(trump = None, value = pip[0], color = color, points = pip[1]))
+                self.strgCards.append(self.cards[-1].strgPoor)
             #endFor
         #endFor
 
-        trumps = [  "0.0 - The Fool",
+        trumps = [  "EX.0 - The Fool",
                     "1.I - The Magician",
                     "2.II - The High Priestess",
                     "3.III - The Empress",
@@ -49,7 +50,8 @@ class TarotDeck():
                     "20.XX - Judgement",
                     "21.XXI - The World"]
         for trump in trumps:
-            self.cards.append(Card(trump = trump, value = None, color = None, points = 4.5 if (trump=="0.0 - The Fool" or trump=="1.I - The Magician" or trump=="21.XXI - The World") else 0.5))
+            self.cards.append(Card(trump = trump, value = None, color = None, points = 4.5 if (trump=="EX.0 - The Fool" or trump=="1.I - The Magician" or trump=="21.XXI - The World") else 0.5))
+            self.strgCards.append(self.cards[-1].strgPoor)
         #endFor
         self.shuffle()
     #endDef

@@ -7,14 +7,36 @@ class Player():
     def __init__(self, name):
         self.name = name
         self.cards = []
+        self.bid = "passe"
+        self.taker = False
         self.points = 0
+    #endDef
+
+    def countCardValue(self, val):
+        c = 0
+        for card in self.cards:
+            if card.value == val:
+                c += 1
+            #endIf
+        #endFor
+        return c
+    #endDef
+
+    def countCardTrump(self):
+        c = 0
+        for card in self.cards:
+            if card.isTrump:
+                c += 1
+            #endIf
+        #endFor
+        return c
     #endDef
 
     def addCard(self, card):
         self.cards.append(card)
     #endDef
 
-    def showCards(self):
+    def cardsToStr(self):
         handLst = []
         handStr = "Your cards : "
         for idx, card in enumerate(self.cards):

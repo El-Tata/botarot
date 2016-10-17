@@ -9,6 +9,9 @@ class Card():
         self.points = points
         self.strg = self.setStrg()
 
+        pos = self.strg.find(' ')
+        self.strgPoor = self.strg[pos+1 : self.strg[pos+1:].find(' ')+pos+1]
+
     #endDef
 
     def setStrg(self):
@@ -36,6 +39,12 @@ class Card():
     #endDef
 
     def isOudler(self):
-        return (self.isTrump() and (self.trump == "1.I - The Magician" or self.trump == "0.0 - The Fool" or self.trump == "21.XXI - The World"))
+        return (self.isTrump() and (self.trump == "1.I - The Magician" or self.trump == "EX.0 - The Fool" or self.trump == "21.XXI - The World"))
     #endDef
 #endClass
+
+def strToCard(strCard):
+    trump
+    value
+    color
+    points
