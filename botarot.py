@@ -141,14 +141,14 @@ class Botarot(ircbot.SingleServerIRCBot):
                 for pl in g[0].players:
                     if pl.name == auth:
                         g[0].showCards(pl)
-            elif auth == g[0].players[0].name and msg.lower() in ["drop game", "cancel game"]:
-                self.games.remove(g)
-                self.sendMsg(ev.target(), auth + " stopped the game. I'm available for another one ;).")
+#            elif auth == g[0].players[0].name and msg.lower() in ["drop game", "cancel game"]:
+#²                self.games.remove(g)
+#                self.sendMsg(ev.target(), auth + " stopped the game. I'm available for another one ;).")
             elif g[1] == "launched" and msg.lower() == "join":
                 g[0].addPlayer(auth)
-            elif g[1] == "auctions" and msg.lower().startswith("bid"):
+            elif g[1] == "auctions" and msg.lower().startswith("bid "):
                 g[0].auction(auth, msg.lower()[msg.find(' ')+1:])
-            elif g[1] == "call" and auth == g[0].takers[0].name and msg.lower().startswith("call"):
+            elif g[1] == "call" and auth == g[0].takers[0].name and msg.lower().startswith("call "):
                 g[0].call(msg[msg.find(' ')+1:])
             #endIf
         #endIf

@@ -22,6 +22,8 @@ class Game():
         self.deck = TarotDeck()
         self.deck.generateCards()
         self.bids = ["passe", "petite", "garde", "garde sans", "garde contre"]
+        self.tkrCards = []
+        self.defCards = []
     #endDef
 
     def isRandNestOk(self, randNest):
@@ -148,6 +150,8 @@ class Game():
                 self.botRef.sendMsg(self.channel, nick + " says " + "\x1b[1m" + bid.title() + "\x1b[0m")
             #endIf
             self.numTurn -= 1
+        elif bid == "help":
+            self.botRef.sendMsg(self.channel, "You can bid with 'bid petite|garde|garde sans|garde contre'")
         else:
             self.botRef.sendMsg(self.channel, nick + ": this bid is not valid.")
         #endIf
@@ -159,9 +163,29 @@ class Game():
                     tkr = self.players.index(pl)
                 #endIf
             #endFor
+            if self.players[tkr].bid == "passe":    #tout le monde a passé
+                self.botRef.sendMsg(self.channel, "Everybody passed ! I take back your cards and deal again...")
+                for pl in self.players: #on récupère les cartes de tout le monde
+                    while pl.cards:
+                        self.deck.append(pl.cards.pop())
+                    #endWhile
+                #endFor
+                while self.nest:
+                    self.deck.append(self.nest.pop())
+                self.dealingNoShuffle(self.generateNest())  #on redistribue
+                for pl in self.players:
+                    self.showCards(pl)
+                self.players.insert(0, self.players.pop(-1))    #on fait tourner la liste des joueurs
+                self.numTurn = -1   #et on réinitialise le compteur
+                self.botRef.sendMsg(self.channel, self.players[self.numTurn].name + ": your turn to speak.")
+                return
+            #endIf
+
             self.players[tkr].taker = True
             self.takers.append(self.players[tkr])
             self.botRef.sendMsg(self.channel, "\x1b[1m" + self.takers[0].name + "\x1b[0m is the taker.")
+            for pl in self.players:
+                pl.sortHand()
 
             if len(self.players) == 5:  #si on joue à 5, on détermine ce que doit appeler le preneur
 
@@ -192,7 +216,12 @@ class Game():
     #endDef
 
 
-#    def contracts(self):
+    def takersContract(self):
+        if len(self.players == 5):
+            return [56, 51, 41, 36][self.takers[0].countCardTrump() + self.takers[1].countCardTrump()]
+        else:
+            return [56, 51, 41, 36][self.takers[0].countCardTrump()]
+
 #    def annonces(self):
 
     def showCards(self, player):

@@ -25,7 +25,17 @@ class Player():
     def countCardTrump(self):
         c = 0
         for card in self.cards:
-            if card.isTrump:
+            if card.isTrump():
+                c += 1
+            #endIf
+        #endFor
+        return c
+    #endDef
+
+    def countCardOudler(self):
+        c = 0
+        for card in self.cards:
+            if card.isOudler():
                 c += 1
             #endIf
         #endFor
@@ -34,6 +44,10 @@ class Player():
 
     def addCard(self, card):
         self.cards.append(card)
+    #endDef
+
+    def sortHand(self):
+        self.cards.sort()
     #endDef
 
     def cardsToStr(self):

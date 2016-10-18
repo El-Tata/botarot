@@ -58,3 +58,9 @@ class TarotDeck():
 
     def pop(self, idx=-1):
         return self.cards.pop(idx)
+    #endDef
+
+    def append(self, card):
+        self.cards.append(card)
+
+#endClass

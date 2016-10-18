@@ -42,9 +42,3 @@ class Card():
         return (self.isTrump() and (self.trump == "1.I - The Magician" or self.trump == "EX.0 - The Fool" or self.trump == "21.XXI - The World"))
     #endDef
 #endClass
-
-def strToCard(strCard):
-    trump
-    value
-    color
-    points
