@@ -15,6 +15,9 @@ class Card():
     #endDef
 
     def setStrg(self):
+        """
+        This method gives a formated string for each card, in order to be prompted in a fancy way.
+        """
         if self.isTrump():
             return "\x1b[1;37;43m " + self.trump[0:self.trump.find('.')] + " \x1b[0;0;0m "
         else:
@@ -35,10 +38,12 @@ class Card():
 
 
     def isTrump(self):
+        """ This method return true if the card is a trump, false otherwise."""
         return (self.trump != None)
     #endDef
 
     def isOudler(self):
+        """ This method return true if the card is an oudler, false otherwise."""
         return (self.isTrump() and (self.trump == "1.I - The Magician" or self.trump == "EX.0 - The Fool" or self.trump == "21.XXI - The World"))
     #endDef
 #endClass

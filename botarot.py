@@ -37,8 +37,9 @@ class Botarot(ircbot.SingleServerIRCBot):
     #endDef
 
     def strDick(self, string):
+        """ Joke method : each word of string has 1/500 chances to become 'bite' (lit. 'dick'). This ratio decrease. The more the users say 'bite', the more there is chance for each word to become 'bite'."""
         if self.dickLuck < 0:
-            return string
+            self.dickLuck = 7
         #endIF
         strL = []
         curSpc = string.find(' ')
@@ -60,26 +61,28 @@ class Botarot(ircbot.SingleServerIRCBot):
 
 
     def sendMsg(self, dest, msg):
+        """ This method allows other classes to send messages, in a easier way (provided that there is a reference to an instance of this class)."""
         self.serv.privmsg(dest, self.strDick(msg))
     #endDef
 
     def sendNtc(self, dest, msg):
+        """ This method allows other classes to send notices, in a easier way (provided that there is a reference to an instance of this class)."""
         self.serv.notice(dest, msg)
     #endDef
 
     def sendAct(self, dest, msg):
+        """ This method allows other classes to do actions (i.e. /me), in a easier way (provided that there is a reference to an instance of this class)."""
         self.serv.action(dest, msg)
     #endDef
 
     def execDelay(self, time, func, args=()):
+        """ This method allows other classes to execute dalayed function, in a easier way (provided that there is a reference to an instance of this class)."""
         self.serv.execute_delayed(time, func, args)
     #endDef
 
 
     def on_welcome(self, serv, ev):
-        """
-        Méthode appelée une fois connecté et identifié.
-        """
+        """ This method is called once the bot is connected to the server."""
         self.serv = serv
         for chan in self.chans:
             serv.join(chan)
@@ -87,12 +90,14 @@ class Botarot(ircbot.SingleServerIRCBot):
     #endDef
 
     def gameInChan(self, chan):
+        """ This method checks if there is a game currently running in the chan."""
         for g in self.games:
             if chan == g[0].channel:
                 return g
         return None
 
     def on_pubmsg(self, serv, ev):
+        """ This method describes the behavior of the bot when he read a message, according to its content."""
         msg = ev.arguments()[0]
         auth = irclib.nm_to_n(ev.source())
         g = self.gameInChan(ev.target())
@@ -105,13 +110,17 @@ class Botarot(ircbot.SingleServerIRCBot):
             #endIf
             if self.dickLuck <= 6:
                 self.dickLuck = 499
+            #endIf
+        #endIf
+
+        if "sava" in msg.lower():
+            self.sava(ev.target(), serv)
+        #endIf
 
         if msg.startswith("Botarot:"):
             if msg.endswith(":") or msg.endswith(" "):
                 self.sendMsg(ev.target(), "J'écoute.")
             #endIf
-            if "sava" in msg:
-                self.sava(ev.target(), serv)
             elif msg[9:] == "tarot":
                 if ev.target() in [g[0].channel for g in self.games]:
                     self.sendMsg(ev.target(), auth+": A game is already running on this chan !")
@@ -141,24 +150,31 @@ class Botarot(ircbot.SingleServerIRCBot):
                 for pl in g[0].players:
                     if pl.name == auth:
                         g[0].showCards(pl)
+                    #endIf
+                #endFor
 #            elif auth == g[0].players[0].name and msg.lower() in ["drop game", "cancel game"]:
 #²                self.games.remove(g)
 #                self.sendMsg(ev.target(), auth + " stopped the game. I'm available for another one ;).")
-            elif g[1] == "launched" and msg.lower() == "join":
+            elif g[1] == "launched" and msg.lower().strip() == "join":
                 g[0].addPlayer(auth)
+            elif g[1] == "petit sec" and auth == g[0].petsec and msg.lower().strip() == "petit sec":
+                g[0].petitSec(auth)
             elif g[1] == "auctions" and msg.lower().startswith("bid "):
                 g[0].auction(auth, msg.lower()[msg.find(' ')+1:])
             elif g[1] == "call" and auth == g[0].takers[0].name and msg.lower().startswith("call "):
                 g[0].call(msg[msg.find(' ')+1:])
+            elif g[1] == "nest" and auth == g[0].takers[0].name and msg.replace(" ", "").isdigit():
+                g[0].takerPicksNest(msg.strip())
             #endIf
         #endIf
     #endDef
 
     def sava(self, chan, serv):
+        """ Joke method : it generates a random string of 'sava'."""
         savaStr = ""
         rdi = int(1.0/random.expovariate(3))+1  #on simule une loi de poisson de paramètre 3, et +1 pour éviter le 0
         if rdi > 13:
-            rdi = 13    #faut pas que ça soit, trop long, ho (et 13 c'est bien, c'est premier)
+            rdi = 13    #faut pas que ça soit trop long, ho (et 13 c'est bien, c'est premier)
         for i in range(rdi):
             savaStr += self.savaTab[random.randint(0,len(self.savaTab)-1)]
         #endFor
@@ -167,6 +183,7 @@ class Botarot(ircbot.SingleServerIRCBot):
     #endDef
 
     def runGame(self, starter, serv, chan):
+        """ This method is called when someone lauch a tarot game in the chan. It creates a new instance of Game and appends it to the list of games of the class Botarot."""
         self.games.append([game.Game(len(self.games), chan, self, starter), "launched"])
         self.sendMsg(self.games[-1][0].channel, "Tarot game launched by \x1b[1m" + self.games[-1][0].players[0].name + "\x1b[0m. Waiting for 2-4 more players. Say 'join' to participate.")
 

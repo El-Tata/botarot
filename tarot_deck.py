@@ -11,13 +11,14 @@ class TarotDeck():
         self.cards = []
         self.strgCards = []
 
-
     def shuffle(self):
+        """ This method shuffle the cards of the deck. To use only once at the beginning of a game, juste after the cards generation."""
         random.shuffle(self.cards)
         #endDef
 
 
     def generateCards(self):
+        """ This method generate all the cards in the deck."""
         colors = ["Heart", "Club", "Diamond", "Spade"]
         pips = [["1", 0.5], ["2", 0.5], ["3", 0.5], ["4", 0.5], ["5", 0.5], ["6", 0.5], ["7", 0.5], ["8", 0.5], ["9", 0.5], ["10", 0.5], ["Jack", 1.5], ["Knight", 2.5], ["Queen", 3.5], ["King", 4.5]]
         for color in colors:
@@ -57,10 +58,21 @@ class TarotDeck():
     #endDef
 
     def pop(self, idx=-1):
+        """ This method returns the card of index idx of the deck (by default, the last one)."""
         return self.cards.pop(idx)
-    #endDef
+    #end"Def
 
     def append(self, card):
+        """ This method adds a card to the deck."""
         self.cards.append(card)
+    #endDef
+
+    def cut(self):
+        """ This method cut the deck in the middle. To use before deal."""
+        rdi = random.randint(34, 44)
+        for i in range(rdi):
+            self.append(self.pop())
+        #endFor
+    #endDef
 
 #endClass
